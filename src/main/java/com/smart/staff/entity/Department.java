@@ -1,4 +1,4 @@
-package com.smart.staff.model;
+package com.smart.staff.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,4 +1,4 @@
-package com.smart.staff.model;
+package com.smart.staff.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Payroll {
+public class LeaveRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,12 +19,15 @@ public class Payroll {
     @JoinColumn(name = "employee_id")
     private Employee employee; // Relationship with Employee
 
-    private Double basicSalary;
+    private LocalDate startDate;
 
-    private Double deductions;
+    private LocalDate endDate;
 
-    private Double netSalary;
+    @Enumerated(EnumType.STRING)
+    private LeaveStatus status; // PENDING, APPROVED, REJECTED
+}
 
-    private LocalDate generatedDate;
+enum LeaveStatus {
+    PENDING, APPROVED, REJECTED
 }
 
