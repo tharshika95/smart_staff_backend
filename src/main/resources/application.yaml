@@ -7,5 +7,33 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     show-sql: true
+
+  flyway: #flyway automatically uses the datasource from the application to connect to the DB
+    enabled: true # enables flyway database migration
+    locations: classpath:db/migration # the location where flyway should look for migration scripts
+    validate-on-migrate: true
+    default-schema: smart_staff
+    baselineOnMigrate: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: karnan.learning@gmail.com
+    password: bydbtrpzluhpzjxr
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: smtp.gmail.com
+
+# App Properties
+smartStaff:
+  app:
+    jwtSecret: bezKoderSecretKey
+    jwtExpirationMs: 3600000
+    jwtRefreshExpirationMs: 86400000
