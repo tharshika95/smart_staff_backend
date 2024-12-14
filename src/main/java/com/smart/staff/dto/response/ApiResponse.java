@@ -1,7 +1,5 @@
-package com.smart.staff.advice;
+package com.smart.staff.dto.response;
 
-import com.smart.staff.exception.ErrorDetails;
-import com.smart.staff.exception.Status;
 import lombok.*;
 
 @Setter
@@ -30,6 +28,5 @@ public class ApiResponse<T> {
         return new ApiResponse<>(Status.PARTIAL_SUCCESS, data, error);
     }
 
-    // Getters and Setters
 }
 

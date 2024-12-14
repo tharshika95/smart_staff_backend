@@ -1,4 +1,4 @@
-package com.smart.staff.exception;
+package com.smart.staff.dto.response;
 
 public enum Status {
     SUCCESS,
