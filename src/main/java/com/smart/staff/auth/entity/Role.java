@@ -1,6 +1,7 @@
 package com.smart.staff.auth.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +25,7 @@ public class Role {
     private ERole name;
 
     @ManyToMany(mappedBy = "roles")
+    @JsonBackReference // Break the cycle
     private Set<User> users = new HashSet<>();
 
 }

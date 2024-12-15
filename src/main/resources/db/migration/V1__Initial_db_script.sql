@@ -34,7 +34,8 @@ CREATE TABLE refresh_token (
 CREATE TABLE department (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
-    description TEXT
+    description TEXT,
+    isActive BOOLEAN,
 );
 
 CREATE TABLE employee (
@@ -44,6 +45,7 @@ CREATE TABLE employee (
     designation VARCHAR(255),
     date_of_joining DATE,
     salary DOUBLE,
+    isActive BOOLEAN,
     department_id BIGINT,
     FOREIGN KEY (department_id) REFERENCES department(id) ON DELETE SET NULL
 );

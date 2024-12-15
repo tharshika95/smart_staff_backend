@@ -14,4 +14,7 @@ public class SignUpException extends RuntimeException{
         super(String.format("Failed for : %s", message));
     }
 
+    public SignUpException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

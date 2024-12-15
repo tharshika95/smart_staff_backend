@@ -7,11 +7,11 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
 
   flyway: #flyway automatically uses the datasource from the application to connect to the DB
-    enabled: true # enables flyway database migration
+    enabled: false # enables flyway database migration
     locations: classpath:db/migration # the location where flyway should look for migration scripts
     validate-on-migrate: true
     default-schema: smart_staff
@@ -30,6 +30,9 @@ spring:
             enable: true
           ssl:
             trust: smtp.gmail.com
+  web:
+    resources:
+      static-locations: classpath:/static/, file:static/
 
 # App Properties
 smartStaff:

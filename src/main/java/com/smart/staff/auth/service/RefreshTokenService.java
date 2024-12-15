@@ -1,11 +1,14 @@
 package com.smart.staff.auth.service;
 
 import com.smart.staff.auth.entity.RefreshToken;
+import com.smart.staff.auth.entity.User;
 import com.smart.staff.auth.exception.TokenRefreshException;
 import com.smart.staff.auth.repo.RefreshTokenRepository;
 import com.smart.staff.auth.repo.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class RefreshTokenService {
     @Value("${smartStaff.app.jwtRefreshExpirationMs}")
     private Long refreshTokenDurationMs;
@@ -29,14 +33,30 @@ public class RefreshTokenService {
     }
 
     public RefreshToken createRefreshToken(String userName) {
-        RefreshToken refreshToken = new RefreshToken();
+        // Fetch the user by email
+        User user = userRepository.findByEmail(userName)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + userName));
 
-        refreshToken.setUser(userRepository.findByEmail(userName).get());
-        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
-        refreshToken.setToken(UUID.randomUUID().toString());
+        // Check if a refresh token already exists for the user
+        Optional<RefreshToken> existingToken = refreshTokenRepository.findByUserId(user.getId());
 
-        refreshToken = refreshTokenRepository.save(refreshToken);
-        return refreshToken;
+        RefreshToken refreshToken;
+        if (existingToken.isPresent()) {
+            // Update the existing token
+            refreshToken = existingToken.get();
+            refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+            refreshToken.setToken(UUID.randomUUID().toString());
+            log.info("Updating existing refresh token for user: {}", userName);
+        } else {
+            // Create a new refresh token
+            refreshToken = new RefreshToken();
+            refreshToken.setUser(user);
+            refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+            refreshToken.setToken(UUID.randomUUID().toString());
+            log.info("Creating new refresh token for user: {}", userName);
+        }
+
+        return refreshTokenRepository.save(refreshToken);
     }
 
     public RefreshToken verifyExpiration(RefreshToken token) {

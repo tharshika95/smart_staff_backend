@@ -1,6 +1,7 @@
 package com.smart.staff.auth.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -39,8 +40,6 @@ public class User {
 
     private String fullName;
 
-    private String address;
-
     @Column(nullable = false, unique = true)
     private String phoneNumber;
 
@@ -55,5 +54,6 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"), // Foreign key for User
             inverseJoinColumns = @JoinColumn(name = "role_id") // Foreign key for Role
     )
+    @JsonManagedReference // Break the cycle
     private Set<Role> roles = new HashSet<>();
 }

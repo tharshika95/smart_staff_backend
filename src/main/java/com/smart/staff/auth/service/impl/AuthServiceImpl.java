@@ -2,6 +2,7 @@ package com.smart.staff.auth.service.impl;
 
 import com.smart.staff.auth.dto.request.SignupRequest;
 import com.smart.staff.auth.exception.SignUpException;
+import com.smart.staff.auth.repo.RoleRepository;
 import com.smart.staff.auth.service.AuthService;
 import com.smart.staff.auth.entity.ERole;
 import com.smart.staff.auth.entity.Role;
@@ -27,22 +28,29 @@ public class AuthServiceImpl implements AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     @Override
     public User signUp(SignupRequest signupRequest) {
 
-        try{
+        try {
+            // Fetch the ROLE_ADMIN role from the database
+            Role userRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                    .orElseThrow(() -> new RuntimeException("Error: Role ROLE_ADMIN is not found."));
+
+            // Build the User entity
             User user = User.builder()
                     .username(signupRequest.getUsername())
                     .email(signupRequest.getEmail())
                     .phoneNumber(signupRequest.getPhoneNumber())
-                    .password( new BCryptPasswordEncoder().encode(signupRequest.getPassword()))
-                    .roles(new HashSet<>(Collections.singletonList(Role.builder().name(ERole.ROLE_USER).build())))
+                    .password(new BCryptPasswordEncoder().encode(signupRequest.getPassword()))
+                    .roles(new HashSet<>(Collections.singletonList(userRole))) // Add fetched role
                     .build();
+
+            // Save the User
             return userRepository.save(user);
         } catch (Exception e) {
-            log.error("Exception occurred on signUp method",e);
-            throw new SignUpException("Signup error");
+            throw new SignUpException("Exception occurred in signUp method", e);
         }
     }
 
