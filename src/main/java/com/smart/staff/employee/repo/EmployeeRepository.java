@@ -1,6 +1,6 @@
-package com.smart.staff.repo;
+package com.smart.staff.employee.repo;
 
-import com.smart.staff.entity.Employee;
+import com.smart.staff.employee.entity.Employee;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

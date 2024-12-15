@@ -1,5 +1,6 @@
-package com.smart.staff.entity;
+package com.smart.staff.employee.entity;
 
+import com.smart.staff.entity.Department;
 import jakarta.persistence.*;
 import lombok.*;
 
