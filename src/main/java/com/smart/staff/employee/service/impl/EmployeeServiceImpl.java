@@ -23,7 +23,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.smart.staff.employee.constants.EmployeeConstants.EMPLOYEE_NOT_FOUND_WITH_ID;
 
@@ -152,10 +155,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
     private static final String IMAGE_DIR = "static/employees/images";
 
-    public String saveEmployeeImage(Long employeeId, MultipartFile file) throws IOException {
-        // Fetch employee from the database
-        Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with ID: " + employeeId));
+    public String saveEmployeeImage(String employeeId, MultipartFile file) throws IOException {
 
         // Validate file type (only image formats allowed)
         if (file.isEmpty()) {
@@ -167,8 +167,8 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new IllegalArgumentException("Invalid file type. Only image formats (e.g., JPEG, PNG) are allowed.");
         }
 
-        // Define the base directory inside the static folder
-        String baseDir = new File("src/main/resources/static/employees/images").getAbsolutePath();
+        // Define the base directory inside the resources -> images -> employees folder
+        String baseDir = new File("uploads" + File.separator + "images" + File.separator + "employees").getAbsolutePath();
         Path imageDirectory = Paths.get(baseDir);
 
         // Ensure the directory exists
@@ -178,16 +178,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         // Generate file name and save
         String fileExtension = getFileExtension(file.getOriginalFilename());
-        String imageFileName = employee.getEmpId() + fileExtension;
+        String imageFileName = employeeId + fileExtension;
         Path imagePath = imageDirectory.resolve(imageFileName);
+
+        // Save the image file
         Files.write(imagePath, file.getBytes());
 
-        // Update the employee's image path
-        String relativePath = "/employees/images/" + imageFileName;
-        employee.setImagePath(relativePath);
-        employeeRepository.save(employee);
-
-        return relativePath;
+        // Return the image URL
+        return "/employees/images/" + imageFileName;
     }
 
     private String getFileExtension(String filename) {
@@ -196,4 +194,48 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         return filename.substring(filename.lastIndexOf("."));
     }
+
+    public String generateNextEmpId() {
+        // Fetch the last employee ID in descending order of empId
+        Optional<Employee> lastEmployee = employeeRepository.findTopByOrderByEmpIdDesc();
+
+        String nextEmpId;
+
+        if (lastEmployee.isPresent()) {
+            // Extract the numeric part of the last empId
+            String lastEmpId = lastEmployee.get().getEmpId();
+            int lastIdNumber = Integer.parseInt(lastEmpId.substring(3));
+
+            // Increment the numeric part and generate the next empId
+            nextEmpId = "EMP" + (lastIdNumber + 1);
+        } else {
+            // If no records exist, start with EMP1001
+            nextEmpId = "EMP1001";
+        }
+
+        return nextEmpId;
+    }
+
+    public String deleteEmployeeImage(String employeeId) throws IOException {
+
+        // Define image formats to check
+        List<String> imageExtensions = Arrays.asList("png", "jpg", "jpeg", "gif", "bmp");
+
+        // Construct the directory path using platform-independent approach
+        String directory = "uploads" + File.separator + "images" + File.separator + "employees" + File.separator + "images";
+
+        // Check each image format
+        for (String ext : imageExtensions) {
+            Path filePath = Paths.get(directory + File.separator + employeeId + "." + ext);
+
+            // Delete the image file if it exists
+            if (Files.deleteIfExists(filePath)) {
+                return "Image successfully removed for employee ID: " + employeeId + " (" + ext + ")";
+            }
+        }
+
+        // If no image is found
+        return "No image found for employee ID: " + employeeId;
+    }
+
 }

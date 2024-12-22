@@ -13,5 +13,7 @@ public interface EmployeeService {
     Page<Employee> getAllEmployees(int page, int size);
     Employee updateEmployee(Long id, EmployeeRequest request);
     void deleteEmployee(Long id);
-    String saveEmployeeImage(Long employeeId, MultipartFile file) throws IOException;
+    String saveEmployeeImage(String employeeId, MultipartFile file) throws IOException;
+    String generateNextEmpId();
+    String deleteEmployeeImage(String employeeId) throws IOException;
 }

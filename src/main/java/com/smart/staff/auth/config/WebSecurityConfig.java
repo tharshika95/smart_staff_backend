@@ -35,6 +35,9 @@ public class WebSecurityConfig {
     @Lazy
     private AuthTokenFilter authFilter;
 
+    @Autowired
+    CustomCorsConfiguration customCorsConfiguration;
+
     @Bean
     public UserDetailsService userDetailsService() {
         return new UserDetailsServiceImpl(); // Ensure UserInfoService implements UserDetailsService
@@ -45,17 +48,18 @@ public class WebSecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("api/auth/**", "employees/images/**").permitAll()
-                        .requestMatchers("/auth/department/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/auth/designation/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/auth/employees/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/auth/user/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("api/**", "employees/images/**").permitAll()
+//                        .requestMatchers("/auth/department/**").hasAuthority("ROLE_ADMIN")
+//                        .requestMatchers("/auth/designation/**").hasAuthority("ROLE_ADMIN")
+//                        .requestMatchers("/auth/employees/**").hasAuthority("ROLE_ADMIN")
+//                        .requestMatchers("/auth/user/**").hasAuthority("ROLE_ADMIN")
+//                        .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated() // Protect all other endpoints
                 )
                 .sessionManagement(sess -> sess
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions
                 )
+                .cors(c -> c.configurationSource(customCorsConfiguration))
                 .authenticationProvider(authenticationProvider()) // Custom authentication provider
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter
 

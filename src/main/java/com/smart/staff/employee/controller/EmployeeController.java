@@ -14,6 +14,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 @RestController
 @RequestMapping("/api/employees")
 @RequiredArgsConstructor
@@ -90,18 +99,72 @@ public class EmployeeController {
         }
     }
 
-    @PostMapping("/{id}/upload-image")
-    public ResponseEntity<ApiResponse<String>> uploadEmployeeImage(
-            @PathVariable Long id,
-            @RequestParam("file") MultipartFile file) {
+    @GetMapping("/generateEmpId")
+    public ResponseEntity<ApiResponse<String>> generateNextEmpId() {
 
         try {
-            String imagePath = employeeService.saveEmployeeImage(id, file);
-            return ResponseEntity.ok(ApiResponse.success("Image uploaded successfully: " + imagePath));
+            String imagePath = employeeService.generateNextEmpId();
+            return ResponseEntity.ok(ApiResponse.success(imagePath));
         } catch (Exception e) {
-            log.error("Error uploading image for employee {}: {}", id, e.getMessage());
+            log.error("Error occurred at generateNextEmpId method", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.failure(new ErrorDetails("Image Upload Failed", e.getMessage())));
         }
     }
-}
+
+
+    @PostMapping("/{employeeId}/upload-image")
+    public ResponseEntity<ApiResponse<String>> uploadEmployeeImage(
+            @PathVariable String employeeId,
+            @RequestParam("file") MultipartFile file) {
+
+        try {
+            String imagePath = employeeService.saveEmployeeImage(employeeId, file);
+            return ResponseEntity.ok(ApiResponse.success(imagePath));
+        } catch (Exception e) {
+            log.error("Error uploading image for employee {}: {}", employeeId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.failure(new ErrorDetails("Image Upload Failed", e.getMessage())));
+        }
+    }
+
+    @DeleteMapping("/{employeeId}/remove-image")
+    public ResponseEntity<ApiResponse<String>> removeEmployeeImage(@PathVariable String employeeId) {
+        try {
+            String message = employeeService.deleteEmployeeImage(employeeId);
+            return ResponseEntity.ok(ApiResponse.success(message));
+        } catch (Exception e) {
+            log.error("Error removing image for employee {}: {}", employeeId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.failure(new ErrorDetails("Image Removal Failed", e.getMessage())));
+        }
+    }
+
+    @GetMapping("/employees/images/{employeeId}.png")
+    public ResponseEntity<?> getEmployeeImage(@PathVariable String employeeId) {
+        // Define the folder where images are stored outside the resources
+        String imageFolderPath = "uploads/images/employees"; // This folder is outside resources
+
+        // Construct the full path to the image
+        Path imagePath = Paths.get(imageFolderPath, employeeId + ".png");
+
+        // Check if the image file exists
+        if (!imagePath.toFile().exists()) {
+            return new ResponseEntity<>("Image not found for employee ID: " + employeeId, HttpStatus.NOT_FOUND);
+        }
+
+        // Serve the image as a resource
+        Resource resource = new FileSystemResource(imagePath);
+
+        // Set headers to disable caching (optional)
+        HttpHeaders headers = new HttpHeaders();
+        headers.setCacheControl("no-store, no-cache, must-revalidate, proxy-revalidate");
+        headers.setPragma("no-cache");
+
+        // Return the image as part of the response
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(resource);
+    }
+
+    }

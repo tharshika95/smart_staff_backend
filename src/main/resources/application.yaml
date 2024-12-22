@@ -30,9 +30,11 @@ spring:
             enable: true
           ssl:
             trust: smtp.gmail.com
-  web:
-    resources:
-      static-locations: classpath:/static/, file:static/
+  resources:
+    cache:
+      cachecontrol:
+        no-store: true
+        max-age: 0
 
 # App Properties
 smartStaff:
