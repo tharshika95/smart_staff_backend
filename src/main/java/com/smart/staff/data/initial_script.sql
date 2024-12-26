@@ -2,6 +2,7 @@
 
 -- Clear existing data
 DELETE FROM role;
+DELETE FROM user;
 DELETE FROM employee;
 DELETE FROM designation;
 DELETE FROM department;
@@ -15,6 +16,10 @@ WHERE NOT EXISTS (SELECT 1 FROM role WHERE name = 'ROLE_USER');
 INSERT INTO role (id, name)
 SELECT 2, 'ROLE_ADMIN'
 WHERE NOT EXISTS (SELECT 1 FROM role WHERE name = 'ROLE_ADMIN');
+
+-- Check and insert useraa
+INSERT INTO book_stream.`user` (expiration_time,code,email,full_name,password,phone_number,username) VALUES
+	 (NULL,NULL,'tharshika@gmail.com',NULL,'$2a$10$.hl8V6BtmOPGKB7m3jXpOOocV1KdEKmMtHgfIsdSTw4H.N2qBzY52','0764469117','tharshika');
 
 -- Inserting data into the Department table
 INSERT INTO department (id, name, description, is_active) VALUES
