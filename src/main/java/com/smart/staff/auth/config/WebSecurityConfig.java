@@ -46,14 +46,9 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
+                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for stateless APIs
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("api/**", "employees/images/**").permitAll()
-//                        .requestMatchers("/auth/department/**").hasAuthority("ROLE_ADMIN")
-//                        .requestMatchers("/auth/designation/**").hasAuthority("ROLE_ADMIN")
-//                        .requestMatchers("/auth/employees/**").hasAuthority("ROLE_ADMIN")
-//                        .requestMatchers("/auth/user/**").hasAuthority("ROLE_ADMIN")
-//                        .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("api/auth/signIn", "api/auth/signup", "api/employees/employees/images/**").permitAll()
                         .anyRequest().authenticated() // Protect all other endpoints
                 )
                 .sessionManagement(sess -> sess
