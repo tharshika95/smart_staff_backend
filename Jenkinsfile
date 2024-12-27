@@ -24,16 +24,21 @@ pipeline {
         stage('Push Docker Image to Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
-                                            sh "docker push ${IMAGE_NAME}:${TAG}"
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
+                        sh "docker push ${DOCKER_IMAGE}:${TAG}"
                     }
                 }
             }
         }
         stage('Run Docker Image Locally') {
             steps {
-                sh "docker stop smart-staff-backend-app || true && docker rm smart-staff-backend-app || true"
-                sh "docker run -d --name smart-staff-backend-app -p 8082:8082 ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                script {
+                    // Stop and remove existing container if running
+                    sh "docker stop smart-staff-backend-app || true && docker rm smart-staff-backend-app || true"
+
+                    // Run the new container
+                    sh "docker run -d --name smart-staff-backend-app -p 8082:8082 ${DOCKER_IMAGE}:${TAG}"
+                }
             }
         }
     }
@@ -44,8 +49,8 @@ pipeline {
         failure {
             echo 'Build or deployment failed.'
         }
-         always {
+        always {
             cleanWs() // Clean workspace after build
-         }
+        }
     }
 }
