@@ -5,7 +5,7 @@ pipeline {
         maven 'maven'   // Use the correct name from Global Tool Configuration
     }
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('smart-staff-docker-hub-credentials') // Jenkins Docker Hub credentials ID
+        DOCKER_HUB_CREDENTIALS = credentials('smart-staff-frontend-docker-hub-credentials') // Jenkins Docker Hub credentials ID
         TAG = 'latest'
         VERSION = getVersion(GIT_BRANCH)
         DOCKER_IMAGE_NAME = getTagName(VERSION, BUILD_NUMBER)                                                   // Docker image name
