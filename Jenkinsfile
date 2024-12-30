@@ -8,8 +8,7 @@ pipeline {
         DOCKER_HUB_CREDENTIALS = credentials('smart-staff-docker-hub-credentials') // Jenkins Docker Hub credentials ID
         TAG = 'latest'
         VERSION = getVersion(GITBRANCH)
-        GIT_TAG = getTagName(VERSION, BUILD_NUMBER)
-        DOCKER_IMAGE = GIT_TAG                                                   // Docker image name
+        DOCKER_IMAGE = getTagName(VERSION, BUILD_NUMBER)                                                   // Docker image name
         DOCKER_CONTAINER_NAME = 'smart-staff-backend-app'                       // Docker container name
     }
     stages {
