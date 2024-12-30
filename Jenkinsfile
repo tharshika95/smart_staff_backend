@@ -40,10 +40,11 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                // Stop and remove the existing container, then run a new one
+                // Check if container exists, then stop and remove it
+                echo 'Deploying the Docker container...'
                 bat """
-                docker stop ${DOCKER_CONTAINER_NAME} || exit /b 0
-                docker rm ${DOCKER_CONTAINER_NAME} || exit /b 0
+                docker ps -a --filter "name=${DOCKER_CONTAINER_NAME}" -q | findstr . && docker stop ${DOCKER_CONTAINER_NAME} || echo 'No container to stop'
+                docker ps -a --filter "name=${DOCKER_CONTAINER_NAME}" -q | findstr . && docker rm ${DOCKER_CONTAINER_NAME} || echo 'No container to remove'
                 docker run -d --name ${DOCKER_CONTAINER_NAME} -p ${HOST_PORT}:${PORT} ${DOCKER_IMAGE_NAME}
                 """
             }
