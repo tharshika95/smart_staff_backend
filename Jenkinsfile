@@ -34,21 +34,6 @@ pipeline {
                 }
             }
         }
-        stage('Run Docker Image Locally') {
-            steps {
-                echo 'Running Docker container locally...'
-                script {
-                    // Stop and remove the existing container if it's running
-                    bat """
-                    docker ps -q --filter "name=${DOCKER_CONTAINER_NAME}" | findstr . && docker stop ${DOCKER_CONTAINER_NAME} || echo "No running container to stop"
-                    docker ps -a -q --filter "name=${DOCKER_CONTAINER_NAME}" | findstr . && docker rm ${DOCKER_CONTAINER_NAME} || echo "No container to remove"
-                    """
-
-                    // Run the new container
-                    bat "docker run -d --name ${DOCKER_CONTAINER_NAME} -p 8888:8888 ${DOCKER_IMAGE}:${TAG}"
-                }
-            }
-        }
     }
     post {
         success {
