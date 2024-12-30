@@ -1,43 +1,52 @@
 pipeline {
     agent any
+    tools {
+        jdk 'openjdk17' // Use the correct name from Global Tool Configuration
+        maven 'maven'   // Use the correct name from Global Tool Configuration
+    }
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('smart-staff-docker-hub-credentials') // Jenkins Docker Hub credentials ID
-        DOCKER_IMAGE = 'tharshika801/smart-staff-backend-app'
         TAG = 'latest'
+        VERSION = getVersion(GITBRANCH)
+        GIT_TAG = getTagName(VERSION, BUILD_NUMBER)
+        DOCKER_IMAGE = GIT_TAG                                                   // Docker image name
+        DOCKER_CONTAINER_NAME = 'smart-staff-backend-app'                       // Docker container name
     }
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/tharshika95/smart_staff_backend.git'
-            }
-        }
         stage('Build and Test') {
             steps {
-                sh './mvnw clean package -DskipTests'
+                echo 'Building the project and running tests...'
+                bat '.\\mvnw clean package -DskipTests'
             }
         }
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${DOCKER_IMAGE}:${TAG} ."
+                echo 'Building Docker image...'
+                bat "docker build -t ${DOCKER_IMAGE}:${TAG} ."
             }
         }
         stage('Push Docker Image to Docker Hub') {
             steps {
+                echo 'Pushing Docker image to Docker Hub...'
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
-                        sh "docker push ${DOCKER_IMAGE}:${TAG}"
+                        bat "docker push ${DOCKER_IMAGE}:${TAG}"
                     }
                 }
             }
         }
         stage('Run Docker Image Locally') {
             steps {
+                echo 'Running Docker container locally...'
                 script {
-                    // Stop and remove existing container if running
-                    sh "docker stop smart-staff-backend-app || true && docker rm smart-staff-backend-app || true"
+                    // Stop and remove the existing container if it's running
+                    bat """
+                    docker ps -q --filter "name=${DOCKER_CONTAINER_NAME}" | findstr . && docker stop ${DOCKER_CONTAINER_NAME} || echo "No running container to stop"
+                    docker ps -a -q --filter "name=${DOCKER_CONTAINER_NAME}" | findstr . && docker rm ${DOCKER_CONTAINER_NAME} || echo "No container to remove"
+                    """
 
                     // Run the new container
-                    sh "docker run -d --name smart-staff-backend-app -p 8082:8082 ${DOCKER_IMAGE}:${TAG}"
+                    bat "docker run -d --name ${DOCKER_CONTAINER_NAME} -p 8888:8888 ${DOCKER_IMAGE}:${TAG}"
                 }
             }
         }
@@ -49,8 +58,15 @@ pipeline {
         failure {
             echo 'Build or deployment failed.'
         }
-        always {
-            cleanWs() // Clean workspace after build
-        }
     }
+}
+
+def getVersion(String gitBranch) {
+    def parts = gitBranch.tokenize('/')
+    return parts[-1]  // Return the last part of the branch name
+}
+
+def getTagName(String version, String buildId) {
+    def tagname = version + '-' + buildId
+    return tagname  // Return the tag name
 }
