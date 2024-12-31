@@ -58,7 +58,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             employee.setEmail(request.getEmail());
             employee.setDateOfJoining(request.getDateOfJoining());
             employee.setSalary(request.getSalary());
-            employee.setActive(request.getIsActive());
+            employee.setIsActive(request.getIsActive());
             employee.setTemporaryAddress(request.getTemporaryAddress());
             employee.setPermanentAddress(request.getPermanentAddress());
             employee.setImagePath(request.getImagePath());
@@ -126,7 +126,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             existingEmployee.setName(updatedEmployee.getName());
             existingEmployee.setDateOfJoining(updatedEmployee.getDateOfJoining());
             existingEmployee.setSalary(updatedEmployee.getSalary());
-            existingEmployee.setActive(updatedEmployee.getIsActive());
+            existingEmployee.setIsActive(updatedEmployee.getIsActive());
             existingEmployee.setTemporaryAddress(updatedEmployee.getTemporaryAddress());
             existingEmployee.setPermanentAddress(updatedEmployee.getPermanentAddress());
             existingEmployee.setImagePath(updatedEmployee.getImagePath());

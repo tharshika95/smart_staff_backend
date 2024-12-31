@@ -22,7 +22,7 @@ public class Department {
 
     private String description;
 
-    private boolean isActive;
+    private Boolean isActive;
 
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
     @JsonIgnore // Prevent recursion during serialization/deserialization

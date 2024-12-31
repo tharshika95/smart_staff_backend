@@ -46,7 +46,7 @@ public class DesignationServiceImpl implements DesignationService {
 
         existingDesignation.setName(designation.getName());
         existingDesignation.setDescription(designation.getDescription());
-        existingDesignation.setActive(designation.isActive());
+        existingDesignation.setIsActive(designation.getIsActive());
         return designationRepository.save(existingDesignation);
     }
 

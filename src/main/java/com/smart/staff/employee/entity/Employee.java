@@ -30,7 +30,7 @@ public class Employee {
 
     private Double salary;
 
-    private boolean isActive;
+    private Boolean isActive;
 
     private String temporaryAddress;
 

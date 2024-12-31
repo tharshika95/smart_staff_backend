@@ -25,7 +25,7 @@ public class Designation {
 
     private String description;
 
-    private boolean isActive;
+    private Boolean isActive;
 
     @OneToMany(mappedBy = "designation", cascade = CascadeType.ALL)
     @JsonIgnore // Prevent recursion during serialization/deserialization
